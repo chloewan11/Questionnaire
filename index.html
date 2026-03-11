@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBMC 減壓實踐 · 分類選項表</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', 'Noto Sans', 'Helvetica Neue', sans-serif;
+            background: #eef2f6;
+            padding: 24px 16px;
+            color: #1e2b3c;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 28px 24px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1f3a5f;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1:before {
+            content: "⛰️";
+            font-size: 32px;
+        }
+        .period {
+            background: #d7e5ff;
+            padding: 8px 18px;
+            border-radius: 40px;
+            display: inline-block;
+            font-weight: 500;
+            color: #1f3a5f;
+            margin: 8px 0 20px 0;
+            font-size: 15px;
+        }
+        .form-card {
+            background: #f9fcff;
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid #dde5ed;
+            margin-bottom: 32px;
+        }
+        .field {
+            margin-bottom: 24px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #1e3c5a;
+            font-size: 16px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1.5px solid #cbd6e4;
+            border-radius: 20px;
+            font-size: 15px;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus {
+            border-color: #2b6a9e;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(43,106,158,0.15);
+        }
+
+        /* 分類摺疊樣式 */
+        .category-section {
+            margin-bottom: 16px;
+            border: 1px solid #d6e2f0;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+        .category-header {
+            background: #e6f0fa;
+            padding: 14px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #1f3a5f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.1s;
+        }
+        .category-header:hover {
+            background: #d4e3f7;
+        }
+        .category-header .arrow {
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+        .category-header.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+        .category-options {
+            padding: 16px 20px;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 10px;
+            border-top: 1px solid #d6e2f0;
+        }
+        .category-options.collapsed {
+            display: none;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: #f5f9ff;
+            border: 1px solid #cbd8ea;
+            border-radius: 40px;
+            padding: 8px 14px 8px 10px;
+            transition: 0.1s;
+        }
+        .option-item:hover {
+            background: #e2edf9;
+            border-color: #9bb6d1;
+        }
+        .option-item input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #1f3a5f;
+            flex-shrink: 0;
+        }
+        .option-item .num {
+            color: #2f5a8c;
+            font-weight: 500;
+            margin-right: 6px;
+            font-size: 13px;
+            background: #dbe7f3;
+            padding: 2px 6px;
+            border-radius: 30px;
+        }
+        .counter {
+            margin: 12px 0 0 5px;
+            font-size: 14px;
+            color: #2f5575;
+            font-weight: 500;
+        }
+        #maxWarning {
+            color: #c44536;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .stars-rating {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .star-option {
+            display: flex;
+            align-items: center;
+            background: #ecf3fa;
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .star-option.selected {
+            background: #ffe6b3;
+            border-color: #f5b342;
+            font-weight: 500;
+        }
+        .star-option input {
+            display: none;
+        }
+        .star-option span {
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin-right: 6px;
+        }
+        .btn-primary {
+            background: #1f3a5f;
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            margin: 16px auto 0 auto;
+            display: block;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            background: #102b47;
+            transform: scale(1.02);
+        }
+        .share-table {
+            margin-top: 40px;
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #cfddee;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 700px;
+        }
+        th {
+            background: #1f3a5f;
+            color: white;
+            padding: 14px 8px;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 14px 8px;
+            border-bottom: 1px solid #d9e2ef;
+            vertical-align: middle;
+        }
+        tr:hover td {
+            background-color: #f4f9ff;
+        }
+        .star-display {
+            color: #f5b342;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        .export-btn {
+            background: white;
+            border: 2px solid #1f3a5f;
+            color: #1f3a5f;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 24px 0 0 0;
+            font-size: 15px;
+        }
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .clear-btn {
+            background: none;
+            border: 1px solid #b0c4de;
+            color: #4d6278;
+            padding: 8px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .note {
+            color: #5e6f82;
+            font-size: 13px;
+            margin-top: 16px;
+            background: #eaf1fa;
+            padding: 12px 18px;
+            border-radius: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>⛰️ 減壓實踐 · 分類選項</h1>
+    <div class="period">📅 本週實踐期：2026年3月12日 ～ 3月18日</div>
+
+    <!-- 填寫表單區塊 -->
+    <div class="form-card">
+        <div class="field">
+            <label>🧑 你的名字 <span style="font-weight:normal; color:#4f6f8f;">（其他人會看到）</span></label>
+            <input type="text" id="memberName" placeholder="例如：陳大文" maxlength="20">
+        </div>
+
+        <div class="field">
+            <label>📌 從各分類中選出「3個」本週實踐的點子</label>
+            <!-- 分類選項容器 -->
+            <div id="categoriesContainer"></div>
+            <div class="counter" id="selectedCounter">已選 0 / 3 項</div>
+            <div id="maxWarning">⚠️ 最多只能選3項</div>
+        </div>
+
+        <div class="field">
+            <label>✏️ 選擇原因 / 期待改變（選填）</label>
+            <textarea id="reason" rows="2" placeholder="例如：最近工作壓力大，想學習交託..."></textarea>
+        </div>
+
+        <div class="field">
+            <label>🙏 需要大家為你禱告的是？（選填）</label>
+            <textarea id="prayer" rows="2" placeholder="例如：希望堅持每日運動..."></textarea>
+        </div>
+
+        <div class="field">
+            <label>⭐ 本週結束時，期望達到的實踐進度</label>
+            <div class="stars-rating" id="starRating">
+                <label class="star-option" data-stars="1">
+                    <input type="radio" name="progressStars" value="1"> <span>⭐</span> 試過1次
+                </label>
+                <label class="star-option" data-stars="2">
+                    <input type="radio" name="progressStars" value="2"> <span>⭐⭐</span> 做了幾次
+                </label>
+                <label class="star-option" data-stars="3">
+                    <input type="radio" name="progressStars" value="3"> <span>⭐⭐⭐</span> 幾乎每天
+                </label>
+            </div>
+        </div>
+
+        <button class="btn-primary" id="submitBtn">📥 提交承諾 · 加入共享表</button>
+    </div>
+
+    <!-- 共享表格 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 24px 0 12px 0;">
+        <h2 style="font-size: 20px;">👥 弟兄姊妹的選擇（即時更新）</h2>
+        <button class="export-btn" id="exportBtn">📎 匯出 CSV</button>
+    </div>
+    <div class="share-table">
+        <table id="responseTable">
+            <thead>
+                <tr><th>名字</th><th>選擇的點子 (3個)</th><th>原因</th><th>代禱</th><th>本週進度⭐</th></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="footer-actions">
+        <button class="clear-btn" id="clearStorageBtn">🗑️ 清除全部資料</button>
+        <span style="color:#6f8aac;">🔁 提交後表格自動更新</span>
+    </div>
+    <div class="note">
+        💡 點擊分類標題可展開/收合。每人限選3項，星星進度可隨時更新（重新提交相同名字即可）。
+    </div>
+</div>
+
+<script>
+(function() {
+    const STORAGE_KEY = 'CBMC_categorized_v1';
+
+    // ---------- 按分類整理的選項 ----------
+    const categories = [
+        {
+            name: "🙏 靈性與禱告類",
+            options: [
+                "1. 禱告 (承認每天需要智慧)",
+                "22. 常常與神說話 (碰到小困難就禱告)",
+                "16. 滋潤靈性 (隨時讀經，如在排隊時)",
+                "24. 準備喜愛經文卡 (壓力時提醒自己)",
+                "31. 記得誰是盟友 (神若幫助我們)"
+            ]
+        },
+        {
+            name: "😴 作息與健康類",
+            options: [
+                "2. 準時上床 (充足休息增強抗壓力)",
+                "3. 準時起床 (從容開始一天)",
+                "17. 適當飲食 (健康飲食提供能量)",
+                "26. 定期運動 (絕佳減壓方法)"
+            ]
+        },
+        {
+            name: "😊 情緒與心態類",
+            options: [
+                "25. 歡笑 (找時間輕鬆愉快)",
+                "27. 培養寬恕 (苦毒有害)",
+                "28. 仁慈對待不仁慈的人 (他們最需要仁慈)",
+                "30. 提醒自己不是宇宙總經理 (不要做神的工作)"
+            ]
+        },
+        {
+            name: "📋 生活效率類",
+            options: [
+                "4. 願意說不 (拒絕做不到的事)",
+                "5. 分派工作 (讓適合的人去做)",
+                "6. 簡化生活 (太多事必造成壓力)",
+                "8. 排出足夠時間 (不要安排過滿)",
+                "9. 調整步伐 (困難事分散開)",
+                "10. 一天事一天擔 (今天就做今天的事)",
+                "14. 小心選擇要說的話 (避免麻煩)",
+                "18. 東西歸位 (需要時不用四處找)",
+                "20. 寫下想法靈感 (好點子要記錄)"
+            ]
+        },
+        {
+            name: "🧘 內在與關係類",
+            options: [
+                "13. 留備份 (常用東西多一份，減少焦慮)",
+                "21. 找時間獨處 (再次充電)",
+                "23. 與同價值觀的人作朋友",
+                "29. 少說多聽 (留心聽別人的話)"
+            ]
+        },
+        {
+            name: "🛠️ 其他實用建議",
+            options: [
+                "7. 少就是多",
+                "11. 分辨憂慮與關心",
+                "12. 在預算內過生活",
+                "15. 玩樂 (為內心小孩)",
+                "19. 開車聽錄音/靈修"
+            ]
+        }
+    ];
+
+    // 儲存所有checkbox的引用以便計數
+    let allCheckboxes = [];
+
+    // ---------- 渲染分類選項 (摺疊式) ----------
+    function renderCategories() {
+        const container = document.getElementById('categoriesContainer');
+        container.innerHTML = '';
+        allCheckboxes = [];
+
+        categories.forEach((cat, catIdx) => {
+            const section = document.createElement('div');
+            section.className = 'category-section';
+
+            // 標頭
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            header.innerHTML = `${cat.name} <span class="arrow">▼</span>`;
+            
+            // 選項區
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'category-options';
+
+            cat.options.forEach((optText, optIdx) => {
+                const item = document.createElement('div');
+                item.className = 'option-item';
+                
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.value = optText;
+                chk.id = `chk_${catIdx}_${optIdx}`;
+                chk.classList.add('option-check');
+                
+                const label = document.createElement('label');
+                label.htmlFor = `chk_${catIdx}_${optIdx}`;
+                label.style.flex = '1';
+                label.style.cursor = 'pointer';
+                
+                // 提取前面的編號（如果有）
+                const match = optText.match(/^(\d+)\./);
+                if (match) {
+                    label.innerHTML = `<span class="num">${match[1]}</span> ${optText.substring(match[0].length)}`;
+                } else {
+                    label.textContent = optText;
+                }
+                
+                item.appendChild(chk);
+                item.appendChild(label);
+                optionsDiv.appendChild(item);
+                
+                allCheckboxes.push(chk);
+            });
+
+            // 點擊標頭收合/展開
+            header.addEventListener('click', function() {
+                optionsDiv.classList.toggle('collapsed');
+                header.classList.toggle('collapsed');
+            });
+
+            section.appendChild(header);
+            section.appendChild(optionsDiv);
+            container.appendChild(section);
+        });
+
+        // 監聽所有checkbox變化
+        allCheckboxes.forEach(cb => {
+            cb.addEventListener('change', enforceMaxCheckboxes);
+        });
+    }
+
+    // ---------- 限制最多選3項 ----------
+    function enforceMaxCheckboxes() {
+        const checked = allCheckboxes.filter(cb => cb.checked);
+        const total = checked.length;
+        document.getElementById('selectedCounter').innerText = `已選 ${total} / 3 項`;
+        
+        if (total > 3) {
+            document.getElementById('maxWarning').style.display = 'block';
+            // 若超過3，把最後勾選的取消
+            const lastChecked = checked[checked.length-1];
+            if (lastChecked) lastChecked.checked = false;
+            
+            // 重新計算一次
+            const finalTotal = allCheckboxes.filter(cb => cb.checked).length;
+            document.getElementById('selectedCounter').innerText = `已選 ${finalTotal} / 3 項`;
+            document.getElementById('maxWarning').style.display = 'none';
+        } else {
+            document.getElementById('maxWarning').style.display = 'none';
+        }
+    }
+
+    // ---------- 取得勾選的選項文字 ----------
+    function getSelectedOptions() {
+        return allCheckboxes.filter(cb => cb.checked).map(cb => cb.value);
+    }
+
+    // ---------- 星星UI互動 ----------
+    function initStars() {
+        const starOptions = document.querySelectorAll('.star-option');
+        starOptions.forEach(opt => {
+            opt.addEventListener('click', function(e) {
+                starOptions.forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                const radio = this.querySelector('input[type="radio"]');
+                if(radio) radio.checked = true;
+            });
+        });
+    }
+
+    function getSelectedStars() {
+        const selected = document.querySelector('input[name="progressStars"]:checked');
+        return selected ? parseInt(selected.value) : 0;
+    }
+
+    // ---------- 儲存回應 ----------
+    function saveResponse() {
+        const name = document.getElementById('memberName').value.trim();
+        if (!name) { alert('請輸入名字'); return false; }
+
+        const selected = getSelectedOptions();
+        if (selected.length === 0) { alert('請至少選一個實踐點子'); return false; }
+        if (selected.length > 3) { alert('最多選3個點子'); return false; }
+
+        const reason = document.getElementById('reason').value.trim() || '';
+        const prayer = document.getElementById('prayer').value.trim() || '';
+        const stars = getSelectedStars();
+
+        let responses = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        const existingIndex = responses.findIndex(r => r.name === name);
+        const newEntry = {
+            name: name,
+            options: selected,
+            reason: reason,
+            prayer: prayer,
+            stars: stars,
+            lastUpdate: new Date().toLocaleString('zh-HK')
+        };
+
+        if (existingIndex !== -1) {
+            responses[existingIndex] = newEntry;
+        } else {
+            responses.push(newEntry);
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(responses));
+
+        // 清空表單（保留名字）
+        document.getElementById('reason').value = '';
+        document.getElementById('prayer').value = '';
+        allCheckboxes.forEach(cb => cb.checked = false);
+        document.querySelectorAll('.star-option').forEach(o => o.classList.remove('selected'));
+        document.querySelectorAll('input[name="progressStars"]').forEach(r => r.checked = false);
+        document.getElementById('selectedCounter').innerText = '已選 0 / 3 項';
+
+        renderTable();
+        return true;
+    }
+
+    // ---------- 渲染共享表格 ----------
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const responses = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        if (responses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:36px; color:#7f9fbf;">✨ 暫無記錄，快來填寫你的三個點子吧！</td></tr>';
+            return;
+        }
+        responses.sort((a,b) => a.name.localeCompare(b.name, 'zh'));
+        let html = '';
+        responses.forEach(r => {
+            const optionsStr = r.options.map(opt => opt.split(' ')[0] + ' ' + (opt.split(' ')[1] || '')).join('； ');
+            const starDisplay = r.stars === 3 ? '⭐⭐⭐' : (r.stars === 2 ? '⭐⭐' : (r.stars === 1 ? '⭐' : '⚪ 未更新'));
+            html += `<tr>
+                <td><strong>${escapeHtml(r.name)}</strong></td>
+                <td>${escapeHtml(optionsStr)}</td>
+                <td>${escapeHtml(r.reason) || '—'}</td>
+                <td>${escapeHtml(r.prayer) || '—'}</td>
+                <td class="star-display">${starDisplay}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function escapeHtml(unsafe) {
+        if (!unsafe) return unsafe;
+        return unsafe.replace(/[&<>"]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            if(m === '"') return '&quot;';
+            return m;
+        });
+    }
+
+    // ---------- 匯出CSV ----------
+    function exportToCSV() {
+        const responses = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        if (responses.length === 0) { alert('尚無資料'); return; }
+        let csv = "名字,選擇的點子,原因,代禱事項,本週進度(星星數),最後更新\n";
+        responses.forEach(r => {
+            const optionsStr = r.options.join(' / ').replace(/,/g, '；');
+            const reason = (r.reason || '').replace(/,/g, '，');
+            const prayer = (r.prayer || '').replace(/,/g, '，');
+            const starText = r.stars === 3 ? '⭐⭐⭐' : (r.stars === 2 ? '⭐⭐' : (r.stars === 1 ? '⭐' : '尚未回報'));
+            csv += `"${r.name}","${optionsStr}","${reason}","${prayer}","${starText}","${r.lastUpdate || ''}"\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute('download', 'CBMC_分類減壓表.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    function clearAllData() {
+        if(confirm('⚠️ 清除後所有記錄將會消失。確定嗎？')) {
+            localStorage.removeItem(STORAGE_KEY);
+            renderTable();
+        }
+    }
+
+    // ---------- 初始化 ----------
+    window.addEventListener('load', function() {
+        renderCategories();
+        initStars();
+        renderTable();
+
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            saveResponse();
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        document.getElementById('clearStorageBtn').addEventListener('click', clearAllData);
+    });
+
+})();
+</script>
+</body>
+</html>
